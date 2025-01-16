@@ -244,6 +244,21 @@ jobs:
       with:
         key: build-kernel-${{ env.DEVICE }}${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}
         max-size: 2G
+        
+    - name: Predefine symbol values in defconfig
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        echo "CONFIG_LITTLE_CPU_MASK=0x1" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+        echo "CONFIG_BIG_CPU_MASK=0x2" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+        echo "CONFIG_PRIME_CPU_MASK=0x4" >> arch/${{ env.ARCH }}/configs/${{ env.KERNEL_CONFIG }}
+
+
+    - name: Ensure .config has values for specific symbols
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        sed -i '/^# LITTLE_CPU_MASK is not set/c\LITTLE_CPU_MASK=0x1' .config || echo 'LITTLE_CPU_MASK=0x1' >> .config
+        sed -i '/^# BIG_CPU_MASK is not set/c\BIG_CPU_MASK=0x2' .config || echo 'BIG_CPU_MASK=0x2' >> .config
+        sed -i '/^# PRIME_CPU_MASK is not set/c\PRIME_CPU_MASK=0x4' .config || echo 'PRIME_CPU_MASK=0x4' >> .config
 
     - name: Build kernel
       run: |
