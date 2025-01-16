@@ -245,6 +245,14 @@ jobs:
         key: build-kernel-${{ env.DEVICE }}${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}
         max-size: 2G
 
+    - name: Initialize kernel configuration and clean old .config
+      run: |
+        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        make ARCH=${{ env.ARCH }} mrproper
+        make ARCH=${{ env.ARCH }} ${{ env.KERNEL_CONFIG }}
+        make ARCH=${{ env.ARCH }} savedefconfig
+        mv defconfig arch/arm64/configs/${{ env.KERNEL_CONFIG }}
+
     - name: Build kernel
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
